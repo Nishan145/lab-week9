@@ -6,11 +6,20 @@ import {
   UserButton,
 } from "@clerk/nextjs";
 import "./globals.css";
-import { db } from "@/lib/db.js";
+import { db } from "@/lib/db";
+import { auth } from "@clerk/nextjs/server";
 
 export default async function RootLayout({ children }) {
-  const profiles = await db.query(`SELECT * FROM profiles`);
+  const { userId } = auth();
+
+  const profiles = await db.query(
+    `SELECT * FROM profiles WHERE clerk_id = '${userId}'`
+  );
   console.log(profiles);
+
+  if (profiles.rowCount === 0 && userId) {
+    await db.query(`INSERT INTO profiles (clerk_id) VALUES ('${userId}')`);
+  }
 
   return (
     <ClerkProvider>
