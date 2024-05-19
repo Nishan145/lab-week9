@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { SignIn, SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs/server";
 
 export default async function Posts() {
@@ -9,7 +10,7 @@ export default async function Posts() {
   posts.content,
   profiles.username 
   FROM posts
-  INNER JOIN profiles ON posts.profile_id =profiles.id;`);
+  INNER JOIN profiles ON posts.profile_id = profiles.id;`);
 
   async function HandleMyPosts(formData) {
     "use server";
@@ -30,11 +31,18 @@ export default async function Posts() {
   return (
     <div>
       <h2>My Posts</h2>
-      <h3>Add a new post</h3>
-      <form action={HandleMyPosts}>
-        <textarea name="content" id="New Post"></textarea>
-        <button>Submit</button>
-      </form>
+      <SignedIn>
+        <h3>Add a new post</h3>
+        <form action={HandleMyPosts}>
+          <textarea name="content" id="New Post"></textarea>
+          <button>Submit</button>
+        </form>
+      </SignedIn>
+
+      <SignedOut>
+        <p> Please Sign in to add a post</p>
+        <SignInButton />
+      </SignedOut>
 
       <h3>All my posts</h3>
       <div className="posts">
